@@ -2,22 +2,24 @@
   <div id="nftTraderTools">
     <div class="left-box">
       <NftCalculator/>
-      <GasPredictionVue/>
+      <GasPrediction/>
     </div>
     <div class="right-box">
-
+      <PredictionList/>
     </div>
   </div>
 </template>
 
 <script>
 import NftCalculator from './components/nftCalculator'
-import GasPredictionVue from './components/gasPrediction'
+import GasPrediction from './components/gasPrediction'
+import PredictionList from './components/predictionList'
 export default {
   name: 'NftTraderTools',
   components: {
     NftCalculator,
-    GasPredictionVue
+    GasPrediction,
+    PredictionList
   }
 }
 </script>
@@ -34,6 +36,8 @@ export default {
   }
   .right-box {
     flex: 1;
+    height: 100%;
+    padding: 5px;
   }
 }
 </style>
