@@ -31,6 +31,7 @@
           class="gas-cost-input" 
           placeholder="Gas预测花费"
           readonly
+          @click.native="copyValueToClipBoard(gasData.gasCost)"
         >
           <template #suffix>ETH</template>
         </el-input>
@@ -40,6 +41,7 @@
 </template>
 
 <script>
+import { copyText } from '@/utils/clipboard'
 import storeMixin from '@/mixins/store'
 export default {
   name: 'GasPrediction',
@@ -104,6 +106,13 @@ export default {
       } = this.gasData
       this.gasData.gasCost = gasLimit * (basePrice / 1 +  maxPriority / 1) / 1000000000 
     },
+    copyValueToClipBoard(value) {
+      copyText(value).then(() => {
+        this.$message.success('复制成功')
+      }).catch((error) => {
+        this.$message.error(error)
+      })
+    },
     // 重置
     reset(key) {
       const resetItem = this[key]
@@ -129,6 +138,9 @@ export default {
   }
   /deep/.gas-cost-input input, .gas-cost-input input:hover, .gas-cost-input input:focus{
     border-color: #67C23A;
+  }
+  /deep/.gas-cost-input, /deep/.gas-cost-input input {
+    cursor: pointer;
   }
 }
 .card-box {
