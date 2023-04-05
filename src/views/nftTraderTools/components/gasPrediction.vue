@@ -93,7 +93,7 @@ export default {
   methods: {
     // Gas测算
     handleGasPrediction() {
-      this.storeData(this.storageKey)
+      this.storeData(this.storageKey, this.gasData)
       if (!this.canGasPredict) {
         return
       }

@@ -185,7 +185,7 @@ export default {
   },
   methods: {
     calculateExitPriceAndProfit() {
-      this.storeData(this.storageKey)
+      this.storeData(this.storageKey, this.formData)
       if (!this.canNFTCalculate) {
         return
       }
@@ -194,7 +194,7 @@ export default {
     },
     // 输入卖出价格
     handleExitPriceInput(val) {
-      this.storeData(this.storageKey)
+      this.storeData(this.storageKey, this.formData)
       if (!this.canNFTCalculate || val === '') {
         return
       }
@@ -203,7 +203,7 @@ export default {
     },
     // 输入利润
     handleProfitInput(val) {
-      this.storeData(this.storageKey)
+      this.storeData(this.storageKey, this.formData)
       if (!this.canNFTCalculate || val === '') {
         return
       }
@@ -212,7 +212,7 @@ export default {
     },
     // 输入利润率
     handleProfitMarginInput(val) {
-      this.storeData(this.storageKey)
+      this.storeData(this.storageKey, this.formData)
       if (!this.canNFTCalculate || val === '') {
         return
       }
