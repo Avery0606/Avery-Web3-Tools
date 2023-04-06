@@ -138,6 +138,9 @@ export default {
     }
     .list-content {
       line-height: 0.5rem;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: SF Pro SC,SF Pro Text,SF Pro Icons,PingFang SC,Helvetica Neue,Helvetica,Arial,sans-serif;
     }
   }
 }
