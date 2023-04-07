@@ -32,7 +32,7 @@
     <!-- 列表 -->
     <div class="list-box">
       <el-card
-        v-for="item in predictionList"
+        v-for="item in showPredictionList"
         :key="item.createdTime"
         shadow="hover"
       >
@@ -53,7 +53,7 @@
           <p>花费GAS：{{ (item.formData.buyGas / 1) + (item.formData.approveGas / 1) }} ETH</p>
           <p>预期卖出价格：{{ item.formData.exitPrice }} ETH</p>
           <p>可获利润：{{ item.formData.profit }} ETH</p>
-          <p>回报率：{{ item.formData.profitMargin }}</p>
+          <p>回报率：{{ item.formData.profitMargin }} %</p>
         </div>
       </el-card>
     </div>
@@ -70,24 +70,12 @@ export default {
         text: '',
         options: []
       },
-      predictionList: [{
-        collectionData: {
-          name: 'Gemesis',
-          contractAddress: ''
-        },
-        formData: {
-          entryPrice: '',
-          exitPrice: '',
-          royalty: '',
-          buyGas: '',
-          approveGas: '',
-          profit: '',
-          profitMargin: 0,
-        },
-        status: 'Success',
-        createdTime: '2023-01-03',
-        isShowStatus: true
-      }]
+      predictionList: []
+    }
+  },
+  computed: {
+    showPredictionList() {
+      return this.predictionList
     }
   },
   methods: {
@@ -100,6 +88,13 @@ export default {
         default:
           return 'info'
       }
+    },
+    handleAddPredictData(predictData) {
+      this.predictionList.unshift({
+        ...predictData,
+        status: 'Predicting',
+        isShowStatus: true
+      })
     }
   }
 }

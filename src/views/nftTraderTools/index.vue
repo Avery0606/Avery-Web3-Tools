@@ -1,11 +1,11 @@
 <template>
   <div id="nftTraderTools">
     <div class="left-box">
-      <NftCalculator/>
+      <NftCalculator @addToPredictList="addToPredictList"/>
       <GasPrediction/>
     </div>
     <div class="right-box">
-      <PredictionList/>
+      <PredictionList ref="predictionList"/>
     </div>
   </div>
 </template>
@@ -20,6 +20,11 @@ export default {
     NftCalculator,
     GasPrediction,
     PredictionList
+  },
+  methods: {
+    addToPredictList(predictData) {
+      this.$refs.predictionList.handleAddPredictData(predictData)
+    }
   }
 }
 </script>

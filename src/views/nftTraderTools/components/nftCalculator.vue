@@ -104,9 +104,48 @@
         </el-input>
       </el-form-item>
       <el-form-item>
+        <el-tooltip effect="dark" content="增加到预测列表" placement="top">
+          <el-button @click="dialogVisible = true">
+            <i class="el-icon-plus"></i>
+          </el-button>
+        </el-tooltip>
         <el-button @click="reset('formData')">重置</el-button>
       </el-form-item>
     </el-form>
+    <el-dialog
+      title="增加到预测列表"
+      :visible.sync="dialogVisible"
+      @open="clearDialogData"
+      @close="clearDialogData"
+    >
+      <el-form 
+        ref="dialogForm"
+        :model="collectionData"
+        :rules="collectionDataRules"
+        label-width="160px"
+        label-position="right"
+        class="dialog-form"
+      >
+        <el-form-item label="Collection Name" prop="name">
+          <el-input 
+            v-model="collectionData.name"
+            placeholder="请输入NFT集合名称"
+          >
+          </el-input>
+        </el-form-item>
+        <el-form-item label="Contract Address">
+          <el-input 
+            v-model="collectionData.contractAddress"
+            placeholder="请输入NFT合约地址"
+          >
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addToPredictList">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -126,7 +165,15 @@ export default {
         profit: '',
         profitMargin: 0,
       },
+      collectionData: {
+        name: '',
+        contractAddress: ''
+      },
+      collectionDataRules: {
+        name: [{ required: true, message: '请输入NFT集合名称', trigger: 'blur' }]
+      },
       storageKey: 'nftCalculator_formData',
+      dialogVisible: false,
       labelWidth: '100px'
     }
   },
@@ -218,6 +265,26 @@ export default {
       }
       this.calculateExitPriceAndProfit()
     },
+    // 增加到预测列表
+    addToPredictList() {
+      this.$refs.dialogForm.validate((valid) => {
+        if (!valid) {
+          return
+        }
+        const predictData = {
+          collectionData: { ...this.collectionData },
+          formData: { ...this.formData },
+          createdTime: new Date()
+        }
+        this.$emit('addToPredictList', predictData)
+        this.dialogVisible = false
+      })
+    },
+    // 清空对话框内容
+    clearDialogData() {
+      this.collectionData.name = ''
+      this.collectionData.contractAddress = ''
+    },
     // 重置
     reset(key) {
       const resetItem = this[key]
@@ -244,6 +311,11 @@ export default {
   }
   /deep/.loss-money input, .loss-money input:hover, .loss-money input:focus {
     border-color: #F56C6C;
+  }
+  .dialog-form {
+    /deep/.el-form-item__content {
+      margin-left: 160px
+    }
   }
 }
 .card-box {
