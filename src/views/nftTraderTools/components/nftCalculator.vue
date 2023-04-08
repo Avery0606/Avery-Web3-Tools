@@ -325,6 +325,7 @@ export default {
   border-radius: 4px;
   padding: 10px;
   padding-top: 0px;
+  transition: 1s;
 }
 .card-box:hover {
   border-color: #409EFF;

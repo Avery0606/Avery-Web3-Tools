@@ -33,8 +33,9 @@
     <div class="list-box">
       <el-card
         v-for="item in showPredictionList"
-        :key="item.createdTime"
+        :key="item.createdTime.toLocaleString()"
         shadow="hover"
+        :style="`border: 1px solid ${getStatusColor(item.status)}`"
       >
         <template #header>
           <span style="font-weight: bold">{{ item.collectionData.name }}</span>
@@ -43,10 +44,43 @@
               v-if="item.isShowStatus"
               size="mini"
               :type="buttonTypeOfStatus(item.status)"
+              @click="item.isShowStatus = false"
             >
               {{ item.status }}
             </el-button>
+            <div v-else class="item-status-button">
+              <i 
+                class="el-icon-success" 
+                style="color: #67C23A"
+                @click="handleItemStatusBtnClick(item, 'Success')"
+              >
+              </i>
+              <i 
+                class="el-icon-s-help" 
+                style="color: #909399"
+                @click="handleItemStatusBtnClick(item, 'Predicting')"
+              >
+              </i>
+              <i 
+                class="el-icon-error" 
+                style="color: #F56C6C"
+                @click="handleItemStatusBtnClick(item, 'Fail')"
+              >
+              </i>
+            </div>
           </div>
+          <el-popover
+            placement="bottom"
+            width="160"
+            v-model="item.isShowDeleteConfirm"
+          >
+            <p>确定删除该预测吗？</p>
+            <div style="text-align: right; margin: 0">
+              <el-button type="info" size="mini" @click="item.isShowDeleteConfirm = false">取消</el-button>
+              <el-button type="danger" size="mini" @click="item.isShowDeleteConfirm = false">确定</el-button>
+            </div>
+            <i slot="reference" class="el-icon-circle-close delete-btn" ></i>
+          </el-popover>
         </template>
         <div class="list-content">
           <p>买入价格：{{ item.formData.entryPrice }} ETH</p>
@@ -61,8 +95,10 @@
 </template>
 
 <script>
+import storeMixin from '@/mixins/store'
 export default {
   name: 'PredictionList',
+  mixins: [storeMixin],
   data() {
     return {
       title: 'Prediction List',
@@ -70,12 +106,24 @@ export default {
         text: '',
         options: []
       },
-      predictionList: []
+      predictionList: [],
+      storageKey: 'predictionList'
     }
   },
   computed: {
     showPredictionList() {
-      return this.predictionList
+      return this.predictionList.filter((item) => {
+        return (
+          item.collectionData.name.includes(this.searchInput.text)
+          && (!this.searchInput.options.length || this.searchInput.options.includes(item.status))
+        )
+      })
+    }
+  },
+  mounted() {
+    const storagePredictionList = this.getStorageData(this.storageKey)
+    if (typeof storagePredictionList === 'object') {
+      this.predictionList = [ ...storagePredictionList ]
     }
   },
   methods: {
@@ -93,8 +141,27 @@ export default {
       this.predictionList.unshift({
         ...predictData,
         status: 'Predicting',
-        isShowStatus: true
+        isShowStatus: true,
+        isShowDeleteConfirm: false
       })
+      this.storeData(this.storageKey, this.predictionList)
+    },
+    handleItemStatusBtnClick(item, status) {
+      item.status = status
+      item.isShowStatus = true
+      this.storeData(this.storageKey, this.predictionList)
+    },
+    getStatusColor(status) {
+      switch (status) {
+        case 'Success':
+          return '#67C23A'
+        case 'Fail':
+          return '#F56C6C'
+        case 'Predicting':
+          return '#909399'
+        default:
+          return '#909399'
+      }
     }
   }
 }
@@ -127,9 +194,31 @@ export default {
     flex: 1;
     overflow: auto;
     margin-top: 5px;
+    .el-card {
+      margin-top: 5px;
+      position: relative;
+      .delete-btn {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        cursor: pointer;
+        transition: 1s;
+      }
+      .delete-btn:hover {
+        color: #F56C6C
+      }
+    }
     /deep/.el-card__body {
       padding: 0;
       padding-left: 10px;
+    }
+    .item-status-button i {
+      cursor: pointer;
+      margin-left: 5px;
+      transition: 1s;
+    }
+    .item-status-button i:hover {
+      transform: scale(1.2);
     }
     .list-content {
       line-height: 0.5rem;
