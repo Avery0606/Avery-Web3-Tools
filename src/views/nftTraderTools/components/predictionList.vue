@@ -33,7 +33,7 @@
     <div class="list-box">
       <el-card
         v-for="item in showPredictionList"
-        :key="item.createdTime.toLocaleString()"
+        :key="item.id"
         shadow="hover"
         :style="`border: 1px solid ${getStatusColor(item.status)}`"
       >
@@ -77,7 +77,7 @@
             <p>确定删除该预测吗？</p>
             <div style="text-align: right; margin: 0">
               <el-button type="info" size="mini" @click="item.isShowDeleteConfirm = false">取消</el-button>
-              <el-button type="danger" size="mini" @click="item.isShowDeleteConfirm = false">确定</el-button>
+              <el-button type="danger" size="mini" @click="deletePredictItem(item.id)">确定</el-button>
             </div>
             <i slot="reference" class="el-icon-circle-close delete-btn" ></i>
           </el-popover>
@@ -86,8 +86,8 @@
           <p>买入价格：{{ item.formData.entryPrice }} ETH</p>
           <p>花费GAS：{{ (item.formData.buyGas / 1) + (item.formData.approveGas / 1) }} ETH</p>
           <p>预期卖出价格：{{ item.formData.exitPrice }} ETH</p>
-          <p>可获利润：{{ item.formData.profit }} ETH</p>
-          <p>回报率：{{ item.formData.profitMargin }} %</p>
+          <p>可获利润：{{ item.formData.profit | filterNumber(4) }} ETH</p>
+          <p>回报率：{{ item.formData.profitMargin | filterNumber(2) }} %</p>
         </div>
       </el-card>
     </div>
@@ -120,6 +120,12 @@ export default {
       })
     }
   },
+  filters: {
+    // 保留n位小数
+    filterNumber(text, n) {
+      return (text / 1).toFixed(n)
+    }
+  },
   mounted() {
     const storagePredictionList = this.getStorageData(this.storageKey)
     if (typeof storagePredictionList === 'object') {
@@ -127,6 +133,40 @@ export default {
     }
   },
   methods: {
+    // 增加卡片
+    handleAddPredictData(predictData) {
+      this.predictionList.unshift({
+        ...predictData,
+        status: 'Predicting',
+        isShowStatus: true,
+        isShowDeleteConfirm: false,
+        id: new Date().getTime()
+      })
+      this.storeData(this.storageKey, this.predictionList)
+    },
+    // 删除卡片
+    deletePredictItem(id) {
+      const length = this.predictionList.length
+      try {
+        for (let i = 0; i < length; i++) {
+          if (this.predictionList[i].id === id) {
+            this.predictionList.splice(i, 1)
+            break
+          }
+        }
+        this.$message.success('删除成功')
+        this.storeData(this.storageKey, this.predictionList)
+      } catch (error) {
+        this.$message.error(error)
+      }
+    },
+    // 状态切换点击
+    handleItemStatusBtnClick(item, status) {
+      item.status = status
+      item.isShowStatus = true
+      this.storeData(this.storageKey, this.predictionList)
+    },
+    // 按钮状态
     buttonTypeOfStatus(status) {
       switch (status) {
         case 'Success':
@@ -137,20 +177,7 @@ export default {
           return 'info'
       }
     },
-    handleAddPredictData(predictData) {
-      this.predictionList.unshift({
-        ...predictData,
-        status: 'Predicting',
-        isShowStatus: true,
-        isShowDeleteConfirm: false
-      })
-      this.storeData(this.storageKey, this.predictionList)
-    },
-    handleItemStatusBtnClick(item, status) {
-      item.status = status
-      item.isShowStatus = true
-      this.storeData(this.storageKey, this.predictionList)
-    },
+    // 状态颜色
     getStatusColor(status) {
       switch (status) {
         case 'Success':
@@ -194,6 +221,7 @@ export default {
     flex: 1;
     overflow: auto;
     margin-top: 5px;
+    padding-right: 5px;
     .el-card {
       margin-top: 5px;
       position: relative;
